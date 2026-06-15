@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UE5 개념 퀴즈</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.container { max-width: 720px; width: 100%; }
+.progress { text-align: right; font-size: 14px; color: #888; margin-bottom: 12px; }
+.concept { font-size: 30px; font-weight: bold; color: #64b5f6; text-align: center; margin-bottom: 32px; }
+.choices { display: flex; flex-direction: column; gap: 12px; }
+.choice {
+  padding: 16px 20px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #16213e;
+  color: #eee;
+  font-size: 15px;
+  line-height: 1.6;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+.choice:hover { border-color: #64b5f6; }
+.choice.correct { border-color: #4caf50; background: #1a3320; color: #a5d6a7; }
+.choice.wrong   { border-color: #f44336; background: #331a1a; color: #ef9a9a; }
+.next-btn {
+  display: none;
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: #64b5f6;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.next-btn:hover { background: #42a5f5; }
+.result { text-align: center; display: none; }
+.result h2 { font-size: 32px; color: #64b5f6; margin-bottom: 16px; }
+.result p  { font-size: 22px; margin-bottom: 32px; }
+.retry-btn {
+  padding: 14px 40px;
+  background: #64b5f6;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.retry-btn:hover { background: #42a5f5; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="quiz">
+    <div class="progress" id="progress"></div>
+    <div class="concept"  id="concept"></div>
+    <div class="choices"  id="choices"></div>
+    <button class="next-btn" id="next-btn">다음 문제 →</button>
+  </div>
+  <div class="result" id="result">
+    <h2>퀴즈 완료!</h2>
+    <p id="score"></p>
+    <button class="retry-btn" onclick="init()">다시 풀기</button>
+  </div>
+</div>
+<script>
+const Q = [
+  {
+    concept: "UBT (Unreal Build Tool)",
+    choices: [
+      "소스 코드를 분석하고, 모듈 간의 의존성을 체크하여 컴파일러가 일을 할 수 있도록 세팅해 주는 역할을 합니다.",
+      "컴파일러가 작동하기 전에 C++ 헤더 파일을 훑어보고, UCLASS() 같은 매크로를 발견하면 .generated.h를 자동으로 만들어 줍니다.",
+      "기능별로 쪼개진 블록 단위로, 서로 어떤 기능을 빌려 쓸지 빌드 규칙을 적어두는 파일이 [프로젝트명].Build.cs 파일입니다.",
+      "프로그램이 자기 자신의 구조를 스스로 들여다보는 능력. UHT를 통해 C++ 정보를 언리얼 엔진이 실시간으로 파악할 수 있게 합니다."
+    ],
+    correctIndex: 0
+  },
+  {
+    concept: "UHT (Unreal Header Tool)",
+    choices: [
+      "소스 코드를 분석하고, 모듈 간의 의존성을 체크하여 컴파일러가 일을 할 수 있도록 세팅해 주는 역할을 합니다.",
+      "컴파일러가 작동하기 전에 C++ 헤더 파일을 훑어보고, UCLASS() 같은 매크로를 발견하면 .generated.h를 자동으로 만들어 줍니다.",
+      "언리얼 C++ 클래스 내부 최상단에 있는 매크로로, UHT가 생성한 리플렉션 코드들이 이 위치에 끼워 맞춰집니다.",
+      "원래 C++은 컴파일 후 내부 구조를 스스로 알 수 없기 때문에, 언리얼 엔진이 C++ 정보를 실시간으로 파악할 수 있게 만드는 기술."
+    ],
+    correctIndex: 1
+  },
+  {
+    concept: "UCLASS()",
+    choices: [
+      "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄울 수 있게 됩니다.",
+      "멤버 함수 위에 붙입니다. C++로 만든 함수를 블루프린트에서 호출하거나, 블루프린트가 구현한 이벤트를 C++에서 호출할 수 있도록 연결고리를 만들어 줍니다.",
+      "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 에디터나 블루프린트가 인식할 수 있게 됩니다.",
+      "언리얼 C++ 클래스 내부 최상단에 있는 매크로로, UHT가 생성한 리플렉션 코드들이 이 위치에 끼워 맞춰집니다."
+    ],
+    correctIndex: 2
+  },
+  {
+    concept: "UPROPERTY()",
+    choices: [
+      "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 에디터나 블루프린트가 인식할 수 있게 됩니다.",
+      "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄울 수 있게 됩니다.",
+      "멤버 함수 위에 붙입니다. C++로 만든 함수를 블루프린트에서 호출하거나, 블루프린트가 구현한 이벤트를 C++에서 호출할 수 있도록 연결고리를 만들어 줍니다.",
+      "언리얼판 std::vector. UPROPERTY()와 함께 쓰면 GC도 자동 관리되고 에디터에서도 편집 가능한 가변 길이 배열입니다."
+    ],
+    correctIndex: 1
+  },
+  {
+    concept: "가비지 컬렉션 (Garbage Collection)",
+    choices: [
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다.",
+      "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄울 수 있게 됩니다.",
+      "UObject를 기반으로 작동하는 객체 중, 더 이상 아무도 참조하지 않는 객체를 엔진이 주기적으로 감시하다가 알아서 메모리에서 지워줍니다.",
+      "원래 C++은 컴파일 후 내부 구조를 스스로 알 수 없기 때문에, 언리얼 엔진이 C++ 정보를 실시간으로 파악할 수 있게 만드는 기술."
+    ],
+    correctIndex: 2
+  },
+  {
+    concept: "UObject",
+    choices: [
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다.",
+      "UObject가 '엔진에 등록된 모든 것'의 부모라면, 이것은 '게임 세계에 존재하는 것'의 부모입니다.",
+      "UObject를 기반으로 작동하는 객체 중, 더 이상 아무도 참조하지 않는 객체를 엔진이 주기적으로 감시하다가 알아서 메모리에서 지워줍니다.",
+      "기능별로 쪼개진 블록 단위로, 서로 어떤 기능을 빌려 쓸지 빌드 규칙을 적어두는 파일이 [프로젝트명].Build.cs 파일입니다."
+    ],
+    correctIndex: 0
+  },
+  {
+    concept: "리플렉션 (Reflection / 프로퍼티 시스템)",
+    choices: [
+      "소스 코드를 분석하고, 모듈 간의 의존성을 체크하여 컴파일러가 일을 할 수 있도록 세팅해 주는 역할을 합니다.",
+      "컴파일러가 작동하기 전에 C++ 헤더 파일을 훑어보고, UCLASS() 같은 매크로를 발견하면 .generated.h를 자동으로 만들어 줍니다.",
+      "언리얼 C++ 클래스 내부 최상단에 있는 매크로로, UHT가 생성한 리플렉션 코드들이 이 위치에 끼워 맞춰집니다.",
+      "원래 C++은 컴파일 후 내부 구조를 스스로 알 수 없기 때문에, 언리얼 엔진이 C++ 정보를 실시간으로 파악할 수 있게 만드는 기술."
+    ],
+    correctIndex: 3
+  },
+  {
+    concept: "UFUNCTION()",
+    choices: [
+      "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 에디터나 블루프린트가 인식할 수 있게 됩니다.",
+      "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄울 수 있게 됩니다.",
+      "멤버 함수 위에 붙입니다. C++로 만든 함수를 블루프린트에서 호출하거나, 블루프린트가 구현한 이벤트를 C++에서 호출할 수 있도록 연결고리를 만들어 줍니다.",
+      "어떤 일이 일어나면 이 함수를 불러줘라고 예약해두는 함수 포인터."
+    ],
+    correctIndex: 2
+  },
+  {
+    concept: "GENERATED_BODY()",
+    choices: [
+      "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 에디터나 블루프린트가 인식할 수 있게 됩니다.",
+      "컴파일러가 작동하기 전에 C++ 헤더 파일을 훑어보고, UCLASS() 같은 매크로를 발견하면 .generated.h를 자동으로 만들어 줍니다.",
+      "언리얼 C++ 클래스 내부 최상단에 있는 매크로로, UHT가 생성한 리플렉션 코드들이 이 위치에 끼워 맞춰집니다.",
+      "원래 C++은 컴파일 후 내부 구조를 스스로 알 수 없기 때문에, 언리얼 엔진이 C++ 정보를 실시간으로 파악할 수 있게 만드는 기술."
+    ],
+    correctIndex: 2
+  },
+  {
+    concept: "모듈 (Module / .Build.cs)",
+    choices: [
+      "소스 코드를 분석하고, 모듈 간의 의존성을 체크하여 컴파일러가 일을 할 수 있도록 세팅해 주는 역할을 합니다.",
+      "기능별로 쪼개진 블록 단위로, 서로 어떤 기능을 빌려 쓸지 빌드 규칙을 적어두는 파일이 [프로젝트명].Build.cs 파일입니다.",
+      "UObject가 '엔진에 등록된 모든 것'의 부모라면, 이것은 '게임 세계에 존재하는 것'의 부모입니다.",
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다."
+    ],
+    correctIndex: 1
+  },
+  {
+    concept: "클래스 선언",
+    choices: [
+      "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 에디터나 블루프린트가 인식할 수 있게 됩니다.",
+      "클래스의 이름, 어떤 클래스로부터 상속받았는지와, 그에 따라 상속된 함수와 변수를 정의하는 것.",
+      "언리얼 C++ 클래스 내부 최상단에 있는 매크로로, UHT가 생성한 리플렉션 코드들이 이 위치에 끼워 맞춰집니다.",
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다."
+    ],
+    correctIndex: 1
+  },
+  {
+    concept: "AActor",
+    choices: [
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다.",
+      "기능별로 쪼개진 블록 단위로, 서로 어떤 기능을 빌려 쓸지 빌드 규칙을 적어두는 파일이 [프로젝트명].Build.cs 파일입니다.",
+      "UObject를 기반으로 작동하는 객체 중, 더 이상 아무도 참조하지 않는 객체를 엔진이 주기적으로 감시하다가 알아서 메모리에서 지워줍니다.",
+      "UObject가 '엔진에 등록된 모든 것'의 부모라면, 이것은 '게임 세계에 존재하는 것'의 부모입니다."
+    ],
+    correctIndex: 3
+  },
+  {
+    concept: "델리게이트 (Delegate)",
+    choices: [
+      "멤버 함수 위에 붙입니다. C++로 만든 함수를 블루프린트에서 호출하거나, 블루프린트가 구현한 이벤트를 C++에서 호출할 수 있도록 연결고리를 만들어 줍니다.",
+      "어떤 일이 일어나면 이 함수를 불러줘라고 예약해두는 함수 포인터.",
+      "언리얼판 std::vector. UPROPERTY()와 함께 쓰면 GC도 자동 관리되고 에디터에서도 편집 가능한 가변 길이 배열입니다.",
+      "원래 C++은 컴파일 후 내부 구조를 스스로 알 수 없기 때문에, 언리얼 엔진이 C++ 정보를 실시간으로 파악할 수 있게 만드는 기술."
+    ],
+    correctIndex: 1
+  },
+  {
+    concept: "TArray<T>",
+    choices: [
+      "FString은 조작용, FName은 비교/검색용(대소문자 무시), FText는 화면 표시용(다국어 현지화 지원)인 언리얼의 문자열 3형제.",
+      "어떤 일이 일어나면 이 함수를 불러줘라고 예약해두는 함수 포인터.",
+      "언리얼판 std::vector. UPROPERTY()와 함께 쓰면 GC도 자동 관리되고 에디터에서도 편집 가능한 가변 길이 배열입니다.",
+      "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄울 수 있게 됩니다."
+    ],
+    correctIndex: 2
+  },
+  {
+    concept: "FString / FName / FText",
+    choices: [
+      "언리얼판 std::vector. UPROPERTY()와 함께 쓰면 GC도 자동 관리되고 에디터에서도 편집 가능한 가변 길이 배열입니다.",
+      "FString은 조작용, FName은 비교/검색용(대소문자 무시), FText는 화면 표시용(다국어 현지화 지원)인 언리얼의 문자열 3형제.",
+      "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 상속받아야 합니다.",
+      "어떤 일이 일어나면 이 함수를 불러줘라고 예약해두는 함수 포인터."
+    ],
+    correctIndex: 1
+  }
+];
+
+let idx = 0, score = 0, selected = null;
+
+function init() {
+  idx = 0; score = 0; selected = null;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  render();
+}
+
+function render() {
+  selected = null;
+  const q = Q[idx];
+  document.getElementById('progress').textContent = `${idx + 1} / ${Q.length}`;
+  document.getElementById('concept').textContent = q.concept;
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = text;
+    btn.onclick = () => pick(i);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('next-btn').style.display = 'none';
+}
+
+function pick(i) {
+  const q = Q[idx];
+  const btns = document.querySelectorAll('.choice');
+  btns.forEach(b => b.classList.remove('correct', 'wrong'));
+
+  selected = i;
+  if (i === q.correctIndex) {
+    btns[i].classList.add('correct');
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.correctIndex].classList.add('correct');
+  }
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+document.getElementById('next-btn').onclick = () => {
+  if (selected === Q[idx].correctIndex) score++;
+  idx++;
+  if (idx >= Q.length) {
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('score').textContent = `총점: ${score} / ${Q.length}`;
+  } else {
+    render();
+  }
+};
+
+init();
+</script>
+</body>
+</html>

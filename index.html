@@ -17,8 +17,29 @@ body {
   padding: 20px;
 }
 .container { max-width: 720px; width: 100%; }
+
+/* 모드 선택 */
+.mode-screen { text-align: center; }
+.mode-screen h1 { font-size: 28px; color: #64b5f6; margin-bottom: 10px; }
+.mode-screen p  { color: #888; font-size: 15px; margin-bottom: 40px; }
+.mode-btns { display: flex; gap: 16px; justify-content: center; }
+.mode-btn {
+  padding: 24px 48px;
+  border: 2px solid #64b5f6;
+  border-radius: 10px;
+  background: #16213e;
+  color: #64b5f6;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.mode-btn:hover { background: #1e3a6e; }
+
+/* 공통 */
 .progress { text-align: right; font-size: 14px; color: #888; margin-bottom: 12px; }
-.concept { font-size: 30px; font-weight: bold; color: #64b5f6; text-align: center; margin-bottom: 32px; }
+.concept  { font-size: 30px; font-weight: bold; color: #64b5f6; text-align: center; margin-bottom: 32px; }
+
+/* 객관식 */
 .choices { display: flex; flex-direction: column; gap: 12px; }
 .choice {
   padding: 16px 20px;
@@ -49,11 +70,66 @@ body {
   cursor: pointer;
 }
 .next-btn:hover { background: #42a5f5; }
+
+/* 주관식 */
+.sa-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: #16213e;
+  border: 2px solid #333;
+  border-radius: 8px;
+  color: #eee;
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+}
+.sa-input:focus { border-color: #64b5f6; }
+.sa-btns { display: flex; gap: 12px; margin-top: 12px; }
+.reveal-btn {
+  flex: 1;
+  padding: 14px;
+  background: transparent;
+  border: 2px solid #64b5f6;
+  border-radius: 8px;
+  color: #64b5f6;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.reveal-btn:hover { background: #1e3a6e; }
+.sa-next-btn {
+  flex: 1;
+  padding: 14px;
+  background: #64b5f6;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.sa-next-btn:hover { background: #42a5f5; }
+.answer-box {
+  display: none;
+  margin-top: 16px;
+  padding: 16px 20px;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  background: #1a3320;
+  color: #a5d6a7;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 결과 */
 .result { text-align: center; display: none; }
 .result h2 { font-size: 32px; color: #64b5f6; margin-bottom: 16px; }
-.result p  { font-size: 22px; margin-bottom: 32px; }
+.result p  { font-size: 22px; margin-bottom: 32px; color: #eee; }
+.result-btns { display: flex; gap: 12px; justify-content: center; }
 .retry-btn {
-  padding: 14px 40px;
+  padding: 14px 32px;
   background: #64b5f6;
   color: #1a1a2e;
   border: none;
@@ -63,21 +139,64 @@ body {
   cursor: pointer;
 }
 .retry-btn:hover { background: #42a5f5; }
+.home-btn {
+  padding: 14px 32px;
+  background: transparent;
+  border: 2px solid #64b5f6;
+  border-radius: 8px;
+  color: #64b5f6;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.home-btn:hover { background: #1e3a6e; }
 </style>
 </head>
 <body>
 <div class="container">
-  <div id="quiz">
+
+  <!-- 모드 선택 화면 -->
+  <div id="mode-screen" class="mode-screen">
+    <h1>UE5 개념 퀴즈</h1>
+    <p>15개 핵심 개념을 연습해 보세요</p>
+    <div class="mode-btns">
+      <button class="mode-btn" onclick="startMode('mc')">객관식</button>
+      <button class="mode-btn" onclick="startMode('sa')">주관식</button>
+    </div>
+  </div>
+
+  <!-- 퀴즈 화면 -->
+  <div id="quiz" style="display:none;">
     <div class="progress" id="progress"></div>
     <div class="concept"  id="concept"></div>
-    <div class="choices"  id="choices"></div>
-    <button class="next-btn" id="next-btn">다음 문제 →</button>
+
+    <!-- 객관식 영역 -->
+    <div id="mc-section">
+      <div class="choices" id="choices"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">다음 문제 →</button>
+    </div>
+
+    <!-- 주관식 영역 -->
+    <div id="sa-section" style="display:none;">
+      <textarea class="sa-input" id="sa-input" rows="3" placeholder="정답을 입력하세요..."></textarea>
+      <div class="sa-btns">
+        <button class="reveal-btn" onclick="revealAnswer()">정답 보기</button>
+        <button class="sa-next-btn" id="sa-next-btn" onclick="nextQ()">다음 문제 →</button>
+      </div>
+      <div class="answer-box" id="answer-box"></div>
+    </div>
   </div>
+
+  <!-- 결과 화면 -->
   <div class="result" id="result">
     <h2>퀴즈 완료!</h2>
-    <p id="score"></p>
-    <button class="retry-btn" onclick="init()">다시 풀기</button>
+    <p id="score-text"></p>
+    <div class="result-btns">
+      <button class="retry-btn" onclick="startMode(currentMode)">다시 풀기</button>
+      <button class="home-btn" onclick="goHome()">모드 선택</button>
+    </div>
   </div>
+
 </div>
 <script>
 const Q = [
@@ -233,10 +352,12 @@ const Q = [
   }
 ];
 
-let idx = 0, score = 0, selected = null;
+let currentMode = null, idx = 0, score = 0, selected = null;
 
-function init() {
+function startMode(m) {
+  currentMode = m;
   idx = 0; score = 0; selected = null;
+  document.getElementById('mode-screen').style.display = 'none';
   document.getElementById('result').style.display = 'none';
   document.getElementById('quiz').style.display = 'block';
   render();
@@ -245,9 +366,23 @@ function init() {
 function render() {
   selected = null;
   const q = Q[idx];
+  const isLast = idx === Q.length - 1;
+
   document.getElementById('progress').textContent = `${idx + 1} / ${Q.length}`;
   document.getElementById('concept').textContent = q.concept;
 
+  if (currentMode === 'mc') {
+    document.getElementById('mc-section').style.display = 'block';
+    document.getElementById('sa-section').style.display = 'none';
+    renderMC(q, isLast);
+  } else {
+    document.getElementById('mc-section').style.display = 'none';
+    document.getElementById('sa-section').style.display = 'block';
+    renderSA(isLast);
+  }
+}
+
+function renderMC(q, isLast) {
   const choicesEl = document.getElementById('choices');
   choicesEl.innerHTML = '';
   q.choices.forEach((text, i) => {
@@ -257,15 +392,21 @@ function render() {
     btn.onclick = () => pick(i);
     choicesEl.appendChild(btn);
   });
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'none';
+  nextBtn.textContent = isLast ? '완료' : '다음 문제 →';
+}
 
-  document.getElementById('next-btn').style.display = 'none';
+function renderSA(isLast) {
+  document.getElementById('sa-input').value = '';
+  document.getElementById('answer-box').style.display = 'none';
+  document.getElementById('sa-next-btn').textContent = isLast ? '완료' : '다음 문제 →';
 }
 
 function pick(i) {
   const q = Q[idx];
   const btns = document.querySelectorAll('.choice');
   btns.forEach(b => b.classList.remove('correct', 'wrong'));
-
   selected = i;
   if (i === q.correctIndex) {
     btns[i].classList.add('correct');
@@ -276,19 +417,30 @@ function pick(i) {
   document.getElementById('next-btn').style.display = 'block';
 }
 
-document.getElementById('next-btn').onclick = () => {
-  if (selected === Q[idx].correctIndex) score++;
+function revealAnswer() {
+  const box = document.getElementById('answer-box');
+  box.textContent = Q[idx].choices[Q[idx].correctIndex];
+  box.style.display = 'block';
+}
+
+function nextQ() {
+  if (currentMode === 'mc' && selected === Q[idx].correctIndex) score++;
   idx++;
   if (idx >= Q.length) {
     document.getElementById('quiz').style.display = 'none';
     document.getElementById('result').style.display = 'block';
-    document.getElementById('score').textContent = `총점: ${score} / ${Q.length}`;
+    document.getElementById('score-text').textContent =
+      currentMode === 'mc' ? `총점: ${score} / ${Q.length}` : '수고하셨습니다!';
   } else {
     render();
   }
-};
+}
 
-init();
+function goHome() {
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'block';
+}
 </script>
 </body>
 </html>

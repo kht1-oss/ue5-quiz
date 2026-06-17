@@ -22,9 +22,9 @@ body {
 .mode-screen { text-align: center; }
 .mode-screen h1 { font-size: 28px; color: #64b5f6; margin-bottom: 10px; }
 .mode-screen p  { color: #888; font-size: 15px; margin-bottom: 40px; }
-.mode-btns { display: flex; gap: 16px; justify-content: center; }
+.mode-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 .mode-btn {
-  padding: 24px 48px;
+  padding: 24px 40px;
   border: 2px solid #64b5f6;
   border-radius: 10px;
   background: #16213e;
@@ -34,6 +34,21 @@ body {
   cursor: pointer;
 }
 .mode-btn:hover { background: #1e3a6e; }
+
+/* 퀴즈 상단 모드 전환 바 */
+.top-nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.nav-btn {
+  padding: 8px 16px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #16213e;
+  color: #888;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.nav-btn:hover { border-color: #64b5f6; color: #64b5f6; }
+.nav-btn.active { border-color: #64b5f6; background: #1e3a6e; color: #64b5f6; }
 
 /* 공통 */
 .progress { text-align: right; font-size: 14px; color: #888; margin-bottom: 12px; }
@@ -71,57 +86,35 @@ body {
 }
 .next-btn:hover { background: #42a5f5; }
 
-/* 주관식 */
-.sa-input {
-  width: 100%;
-  padding: 14px 16px;
-  background: #16213e;
-  border: 2px solid #333;
-  border-radius: 8px;
-  color: #eee;
-  font-size: 15px;
-  font-family: inherit;
-  resize: none;
-  outline: none;
-  line-height: 1.6;
+/* 주관식 / 6/17 공통 */
+.text-label { font-size: 13px; color: #888; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+.text-desc {
+  font-size: 16px; line-height: 1.8; color: #eee;
+  background: #16213e; border: 2px solid #333; border-radius: 10px;
+  padding: 20px; margin-bottom: 20px; white-space: pre-line;
 }
-.sa-input:focus { border-color: #64b5f6; }
-.sa-btns { display: flex; gap: 12px; margin-top: 12px; }
-.reveal-btn {
-  flex: 1;
-  padding: 14px;
-  background: transparent;
-  border: 2px solid #64b5f6;
-  border-radius: 8px;
-  color: #64b5f6;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
+.answer-row { display: flex; gap: 12px; align-items: center; }
+.answer-input {
+  flex: 1; padding: 14px 16px; background: #16213e;
+  border: 2px solid #333; border-radius: 8px; color: #eee;
+  font-size: 16px; font-family: inherit; outline: none;
 }
-.reveal-btn:hover { background: #1e3a6e; }
-.sa-next-btn {
-  flex: 1;
-  padding: 14px;
-  background: #64b5f6;
-  color: #1a1a2e;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
+.answer-input:focus { border-color: #64b5f6; }
+.answer-input.correct { border-color: #4caf50; background: #1a3320; color: #a5d6a7; }
+.answer-input.wrong   { border-color: #f44336; background: #331a1a; color: #ef9a9a; }
+.check-btn {
+  padding: 14px 24px; background: #64b5f6; color: #1a1a2e;
+  border: none; border-radius: 8px; font-size: 15px; font-weight: bold;
+  cursor: pointer; white-space: nowrap;
 }
-.sa-next-btn:hover { background: #42a5f5; }
-.answer-box {
-  display: none;
-  margin-top: 16px;
-  padding: 16px 20px;
-  border: 2px solid #4caf50;
-  border-radius: 8px;
-  background: #1a3320;
-  color: #a5d6a7;
-  font-size: 15px;
-  line-height: 1.6;
+.check-btn:hover { background: #42a5f5; }
+.check-btn:disabled { background: #444; color: #888; cursor: default; }
+.text-feedback {
+  display: none; margin-top: 16px; padding: 14px 18px;
+  border-radius: 8px; font-size: 15px; line-height: 1.6;
 }
+.text-feedback.correct { border: 2px solid #4caf50; background: #1a3320; color: #a5d6a7; }
+.text-feedback.wrong   { border: 2px solid #f44336; background: #331a1a; color: #ef9a9a; }
 
 /* 결과 */
 .result { text-align: center; display: none; }
@@ -129,25 +122,13 @@ body {
 .result p  { font-size: 22px; margin-bottom: 32px; color: #eee; }
 .result-btns { display: flex; gap: 12px; justify-content: center; }
 .retry-btn {
-  padding: 14px 32px;
-  background: #64b5f6;
-  color: #1a1a2e;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  padding: 14px 32px; background: #64b5f6; color: #1a1a2e;
+  border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
 }
 .retry-btn:hover { background: #42a5f5; }
 .home-btn {
-  padding: 14px 32px;
-  background: transparent;
-  border: 2px solid #64b5f6;
-  border-radius: 8px;
-  color: #64b5f6;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  padding: 14px 32px; background: transparent; border: 2px solid #64b5f6;
+  border-radius: 8px; color: #64b5f6; font-size: 16px; font-weight: bold; cursor: pointer;
 }
 .home-btn:hover { background: #1e3a6e; }
 </style>
@@ -158,32 +139,40 @@ body {
   <!-- 모드 선택 화면 -->
   <div id="mode-screen" class="mode-screen">
     <h1>UE5 개념 퀴즈</h1>
-    <p>15개 핵심 개념을 연습해 보세요</p>
+    <p>학습 모드를 선택하세요</p>
     <div class="mode-btns">
       <button class="mode-btn" onclick="startMode('mc')">객관식</button>
       <button class="mode-btn" onclick="startMode('sa')">주관식</button>
+      <button class="mode-btn" onclick="startMode('617')">6/17 추가</button>
     </div>
   </div>
 
   <!-- 퀴즈 화면 -->
   <div id="quiz" style="display:none;">
+    <div class="top-nav">
+      <button class="nav-btn" id="nav-mc"  onclick="startMode('mc')">객관식</button>
+      <button class="nav-btn" id="nav-sa"  onclick="startMode('sa')">주관식</button>
+      <button class="nav-btn" id="nav-617" onclick="startMode('617')">6/17 추가</button>
+    </div>
     <div class="progress" id="progress"></div>
-    <div class="concept"  id="concept"></div>
+    <div class="concept" id="concept"></div>
 
     <!-- 객관식 영역 -->
-    <div id="mc-section">
+    <div id="mc-section" style="display:none;">
       <div class="choices" id="choices"></div>
       <button class="next-btn" id="next-btn" onclick="nextQ()">다음 문제 →</button>
     </div>
 
-    <!-- 주관식 영역 -->
-    <div id="sa-section" style="display:none;">
-      <textarea class="sa-input" id="sa-input" rows="3" placeholder="정답을 입력하세요..."></textarea>
-      <div class="sa-btns">
-        <button class="reveal-btn" onclick="revealAnswer()">정답 보기</button>
-        <button class="sa-next-btn" id="sa-next-btn" onclick="nextQ()">다음 문제 →</button>
+    <!-- 주관식 / 6/17 영역 -->
+    <div id="text-section" style="display:none;">
+      <div class="text-label">이 설명에 해당하는 개념은?</div>
+      <div class="text-desc" id="text-desc"></div>
+      <div class="answer-row">
+        <input class="answer-input" id="text-input" type="text" placeholder="개념 이름을 입력하세요..." autocomplete="off">
+        <button class="check-btn" id="text-check-btn" onclick="checkText()">채점</button>
       </div>
-      <div class="answer-box" id="answer-box"></div>
+      <div class="text-feedback" id="text-feedback"></div>
+      <button class="next-btn" id="text-next-btn" onclick="nextQ()" style="display:none;">다음 문제 →</button>
     </div>
   </div>
 
@@ -199,6 +188,7 @@ body {
 
 </div>
 <script>
+// 객관식용 (15문제): 개념명 보고 → 설명 4지선다
 const Q = [
   {
     concept: "UBT (Unreal Build Tool)",
@@ -352,7 +342,43 @@ const Q = [
   }
 ];
 
+// 주관식용 (15문제): 설명 보고 → 개념명 입력
+const Q_SA = [
+  { desc: "소스 코드를 분석하고, 모듈 간의 의존성을 체크하여 컴파일러가 일을 할 수 있도록 세팅해 주는 역할을 합니다.", answers: ["ubt", "unreal build tool"] },
+  { desc: "컴파일러가 작동하기 전에 C++ 헤더 파일(.h)을 훑어봅니다. UCLASS() 같은 매크로를 발견하면 언리얼 엔진이 인식할 수 있도록 별도의 생성 코드(.generated.h)를 자동으로 만들어 줍니다.", answers: ["uht", "unreal header tool"] },
+  { desc: "클래스 정의 바로 위에 붙이는 매크로. UHT가 이 클래스를 리플렉션 시스템에 등록하여 언리얼 에디터나 블루프린트가 인식할 수 있게 됩니다.", answers: ["uclass", "uclass()"] },
+  { desc: "클래스 내부의 멤버 변수 위에 붙입니다. 가비지 컬렉터가 이 변수가 가리키는 객체를 지우지 않으며, 에디터 디테일 창에 변수를 띄우거나 블루프린트에서 값을 읽고 쓸 수 있게 됩니다.", answers: ["uproperty", "uproperty()"] },
+  { desc: "UObject를 기반으로 작동하는 객체 중, 더 이상 아무도 참조하지 않는 객체를 엔진이 주기적으로 감시하다가 알아서 메모리에서 지워줍니다.", answers: ["가비지 컬렉션", "가비지컬렉션", "gc", "garbage collection"] },
+  { desc: "언리얼 엔진에서 관리하는 모든 객체의 최상위 부모 클래스. 언리얼 엔진의 객체임을 표시하려면 무조건 이것을 상속받아야 합니다.", answers: ["uobject"] },
+  { desc: "원래 C++은 한 번 컴파일되면 내부에 어떤 변수와 함수가 있는지 스스로 알 수 없습니다. UHT를 통해 C++ 코딩 정보를 언리얼 엔진이 실시간으로 파악할 수 있게 만드는 기술입니다.", answers: ["리플렉션", "reflection", "프로퍼티 시스템"] },
+  { desc: "멤버 함수 위에 붙입니다. C++로 만든 함수를 블루프린트에서 호출하거나, 블루프린트가 구현한 이벤트를 C++에서 호출할 수 있도록 연결고리를 만들어 줍니다.", answers: ["ufunction", "ufunction()"] },
+  { desc: "언리얼 C++ 클래스를 만들면 내부 최상단에 무조건 적혀있는 매크로. UHT가 컴파일 전에 생성한 수많은 리플렉션용 코드들이 이 위치에 끼워 맞춰집니다.", answers: ["generated_body", "generated_body()"] },
+  { desc: "기능별로 쪼개진 블록 단위. 서로 어떤 기능을 빌려 쓸지 빌드 규칙을 적어두는 파일이 바로 [프로젝트명].Build.cs 파일입니다.", answers: ["모듈", "module", "build.cs"] },
+  { desc: "클래스의 이름, 어떤 클래스로부터 상속받았는지와, 그에 따라 상속된 함수와 변수를 정의하는 것.", answers: ["클래스 선언", "클래스선언"] },
+  { desc: "UObject가 '엔진에 등록된 모든 것'의 부모라면, 이것은 '게임 세계에 실제로 배치될 수 있는 것'의 부모 클래스입니다.", answers: ["aactor"] },
+  { desc: "어떤 일이 일어나면 이 함수를 불러줘라고 예약해두는 함수 포인터.", answers: ["델리게이트", "delegate"] },
+  { desc: "언리얼판 std::vector. UPROPERTY()와 함께 쓰면 가비지 컬렉터도 자동 관리되고 에디터에서도 편집 가능한 가변 길이 배열입니다.", answers: ["tarray", "tarray<t>"] },
+  { desc: "FString은 조작용, FName은 비교/검색용(대소문자 무시, 매우 빠름), FText는 화면 표시용(다국어 현지화 지원)인 언리얼의 문자열 3형제.", answers: ["fstring", "fname", "ftext", "fstring/fname/ftext", "fstring / fname / ftext"] }
+];
+
+// 6/17 추가문제 (7문제)
+const Q_617 = [
+  { desc: "괄호안에 들어갈 단어를 적으세요.\n\n(      ) Temp: Temp = TCHAR (역참조된 문자열 주소)로 변환된다 / TEXT((%s), TCHAR*)", answers: ["FString"], caseSensitive: true },
+  { desc: "( )* ObjPtr = ActorPtr\nAMyActor를 부모 타입에 담음. 가리키는 값은 그대로 AMyActor. (업캐스팅)", answers: ["uobject"] },
+  { desc: "코드에 명시된 클래스 정보를 가져옴.\n시점: 컴파일\n힌트: Static _____( )", answers: ["staticclass", "staticclass()"] },
+  { desc: "포인터가 실제 가리키는 오브젝트의 클래스 정보를 표시.\n시점: 런타임\n힌트: Get _____( )", answers: ["getclass", "getclass()"] },
+  { desc: "UI 텍스트 표시용. 다국어 현지화(Localization) 지원. 변경 불가.", answers: ["ftext"] },
+  { desc: "조작용 문자열. 변경 가능. 힙 할당이라 상대적으로 무겁다.", answers: ["fstring"] },
+  { desc: "비교·검색용 문자열. 대소문자 무시. 본 이름, 소켓, 태그처럼 자주 비교되는 식별자에 사용.", answers: ["fname"] }
+];
+
 let currentMode = null, idx = 0, score = 0, selected = null;
+
+function getQuestions() {
+  if (currentMode === 'sa')  return Q_SA;
+  if (currentMode === '617') return Q_617;
+  return Q;
+}
 
 function startMode(m) {
   currentMode = m;
@@ -365,20 +391,27 @@ function startMode(m) {
 
 function render() {
   selected = null;
-  const q = Q[idx];
-  const isLast = idx === Q.length - 1;
+  const qs = getQuestions();
+  const q = qs[idx];
+  const isLast = idx === qs.length - 1;
 
-  document.getElementById('progress').textContent = `${idx + 1} / ${Q.length}`;
-  document.getElementById('concept').textContent = q.concept;
+  document.getElementById('progress').textContent = `${idx + 1} / ${qs.length}`;
+
+  ['mc', 'sa', '617'].forEach(m => {
+    document.getElementById('nav-' + m).classList.toggle('active', currentMode === m);
+  });
 
   if (currentMode === 'mc') {
+    document.getElementById('concept').style.display = 'block';
+    document.getElementById('concept').textContent = q.concept;
     document.getElementById('mc-section').style.display = 'block';
-    document.getElementById('sa-section').style.display = 'none';
+    document.getElementById('text-section').style.display = 'none';
     renderMC(q, isLast);
   } else {
+    document.getElementById('concept').style.display = 'none';
     document.getElementById('mc-section').style.display = 'none';
-    document.getElementById('sa-section').style.display = 'block';
-    renderSA(isLast);
+    document.getElementById('text-section').style.display = 'block';
+    renderText(q, isLast);
   }
 }
 
@@ -397,10 +430,20 @@ function renderMC(q, isLast) {
   nextBtn.textContent = isLast ? '완료' : '다음 문제 →';
 }
 
-function renderSA(isLast) {
-  document.getElementById('sa-input').value = '';
-  document.getElementById('answer-box').style.display = 'none';
-  document.getElementById('sa-next-btn').textContent = isLast ? '완료' : '다음 문제 →';
+function renderText(q, isLast) {
+  document.getElementById('text-desc').textContent = q.desc;
+  const input = document.getElementById('text-input');
+  input.value = '';
+  input.className = 'answer-input';
+  input.disabled = false;
+  document.getElementById('text-check-btn').disabled = false;
+  const feedback = document.getElementById('text-feedback');
+  feedback.style.display = 'none';
+  feedback.className = 'text-feedback';
+  const nextBtn = document.getElementById('text-next-btn');
+  nextBtn.style.display = 'none';
+  nextBtn.textContent = isLast ? '완료' : '다음 문제 →';
+  input.focus();
 }
 
 function pick(i) {
@@ -417,20 +460,42 @@ function pick(i) {
   document.getElementById('next-btn').style.display = 'block';
 }
 
-function revealAnswer() {
-  const box = document.getElementById('answer-box');
-  box.textContent = Q[idx].choices[Q[idx].correctIndex];
-  box.style.display = 'block';
+function checkText() {
+  const qs = getQuestions();
+  const input = document.getElementById('text-input');
+  const q = qs[idx];
+  let isCorrect;
+  if (q.caseSensitive) {
+    const typed = input.value.trim();
+    isCorrect = q.answers.includes(typed);
+  } else {
+    const typed = input.value.trim().toLowerCase();
+    isCorrect = q.answers.includes(typed);
+  }
+  if (isCorrect) score++;
+  input.className = 'answer-input ' + (isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+  document.getElementById('text-check-btn').disabled = true;
+  const feedback = document.getElementById('text-feedback');
+  feedback.style.display = 'block';
+  if (isCorrect) {
+    feedback.className = 'text-feedback correct';
+    feedback.textContent = '정답입니다!';
+  } else {
+    feedback.className = 'text-feedback wrong';
+    feedback.textContent = `오답! 정답: ${q.answers[0]}`;
+  }
+  document.getElementById('text-next-btn').style.display = 'block';
 }
 
 function nextQ() {
+  const qs = getQuestions();
   if (currentMode === 'mc' && selected === Q[idx].correctIndex) score++;
   idx++;
-  if (idx >= Q.length) {
+  if (idx >= qs.length) {
     document.getElementById('quiz').style.display = 'none';
     document.getElementById('result').style.display = 'block';
-    document.getElementById('score-text').textContent =
-      currentMode === 'mc' ? `총점: ${score} / ${Q.length}` : '수고하셨습니다!';
+    document.getElementById('score-text').textContent = `총점: ${score} / ${qs.length}`;
   } else {
     render();
   }
@@ -441,6 +506,13 @@ function goHome() {
   document.getElementById('quiz').style.display = 'none';
   document.getElementById('mode-screen').style.display = 'block';
 }
+
+document.addEventListener('keydown', e => {
+  if ((currentMode === 'sa' || currentMode === '617') && e.key === 'Enter') {
+    const btn = document.getElementById('text-check-btn');
+    if (!btn.disabled) checkText();
+  }
+});
 </script>
 </body>
 </html>

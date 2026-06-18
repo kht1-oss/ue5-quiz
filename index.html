@@ -144,6 +144,7 @@ body {
       <button class="mode-btn" onclick="startMode('mc')">객관식</button>
       <button class="mode-btn" onclick="startMode('sa')">주관식</button>
       <button class="mode-btn" onclick="startMode('617')">6/17 추가</button>
+      <button class="mode-btn" onclick="startMode('618')">6/18 추가</button>
     </div>
   </div>
 
@@ -153,6 +154,7 @@ body {
       <button class="nav-btn" id="nav-mc"  onclick="startMode('mc')">객관식</button>
       <button class="nav-btn" id="nav-sa"  onclick="startMode('sa')">주관식</button>
       <button class="nav-btn" id="nav-617" onclick="startMode('617')">6/17 추가</button>
+      <button class="nav-btn" id="nav-618" onclick="startMode('618')">6/18 추가</button>
     </div>
     <div class="progress" id="progress"></div>
     <div class="concept" id="concept"></div>
@@ -372,11 +374,24 @@ const Q_617 = [
   { desc: "비교·검색용 문자열. 대소문자 무시. 본 이름, 소켓, 태그처럼 자주 비교되는 식별자에 사용.", answers: ["fname"] }
 ];
 
+// 6/18 추가문제 (8문제)
+const Q_618 = [
+  { desc: "부모 로드 시 같이 로드됨, 즉시 사용 가능하며 코드가 간단하고 바로 접근 가능함. 대신 연쇄 로딩으로 메모리 폭증.", answers: ["하드 참조", "하드참조", "직접 참조", "직접참조", "하드(직접) 참조", "하드", "직접", "hard reference"] },
+  { desc: "필요한 순간에 명시적으로 로드해서 사용하며 경로만 가지고 있다. 메모리 절약에는 좋지만 로드 전에는 사용 불가능하다.", answers: ["소프트 참조", "소프트참조", "소프트", "soft reference"] },
+  { desc: "C++에서 = 대입 시, 한 줄에서 결과값을 반환(대입)하는 방향은?", answers: ["왼쪽", "left"] },
+  { desc: "현재 게임 월드를 가져오는 함수는?", answers: ["getworld", "getworld()"] },
+  { desc: "블루프린트에서 자주 사용하는 정적(static) 함수들이 모인 클래스를 적으세요.", answers: ["ugameplaystatics"] },
+  { desc: "다음 두 코드는 같은 결과가 나옵니다. 빈칸 ①②에 들어갈 단어를 쓰세요.\n\n// 람다 방식\nSetTimer(TimerTestHandle, ①____(){ this->Destroy(); }, 1.5f, false);\n\n// 멤버 함수 방식\nSetTimer(TimerTestHandle, this, ②____________, 1.5f, false);\n\n(정답 예시: [this] , &AMyActor::OnTimerFinished)", answers: ["[this],&amyactor::ontimerfinished", "[this], &amyactor::ontimerfinished", "[this] , &amyactor::ontimerfinished"] },
+  { desc: "다음 로직 마지막에 들어가는 1.5f 와 false 의 의미는?\n\nGetWorldTimerManager().SetTimer(TimerTestHandle, this, &AMyActor::OnTimerFinished, 1.5f, false);", answers: ["1.5초 뒤 실행, 반복하지 않음", "1.5초 뒤 실행 반복하지 않음", "1.5초뒤 실행, 반복안함", "1.5초 후 실행, 반복 안함"] },
+  { desc: "파티클(캐스케이드) 사용 시 써야 할 전처리문(헤더 인클루드)은?", answers: ['#include "particles/particlesystem.h"', "#include <particles/particlesystem.h>", "particles/particlesystem.h"] }
+];
+
 let currentMode = null, idx = 0, score = 0, selected = null;
 
 function getQuestions() {
   if (currentMode === 'sa')  return Q_SA;
   if (currentMode === '617') return Q_617;
+  if (currentMode === '618') return Q_618;
   return Q;
 }
 
@@ -397,7 +412,7 @@ function render() {
 
   document.getElementById('progress').textContent = `${idx + 1} / ${qs.length}`;
 
-  ['mc', 'sa', '617'].forEach(m => {
+  ['mc', 'sa', '617', '618'].forEach(m => {
     document.getElementById('nav-' + m).classList.toggle('active', currentMode === m);
   });
 
@@ -508,7 +523,7 @@ function goHome() {
 }
 
 document.addEventListener('keydown', e => {
-  if ((currentMode === 'sa' || currentMode === '617') && e.key === 'Enter') {
+  if ((currentMode === 'sa' || currentMode === '617' || currentMode === '618') && e.key === 'Enter') {
     const btn = document.getElementById('text-check-btn');
     if (!btn.disabled) checkText();
   }

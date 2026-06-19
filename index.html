@@ -145,6 +145,8 @@ body {
       <button class="mode-btn" onclick="startMode('sa')">주관식</button>
       <button class="mode-btn" onclick="startMode('617')">6/17 추가</button>
       <button class="mode-btn" onclick="startMode('618')">6/18 추가</button>
+      <button class="mode-btn" onclick="startMode('619')">6/19 추가</button>
+      <button class="mode-btn" onclick="startMode('622')">6/22 추가</button>
     </div>
   </div>
 
@@ -155,6 +157,8 @@ body {
       <button class="nav-btn" id="nav-sa"  onclick="startMode('sa')">주관식</button>
       <button class="nav-btn" id="nav-617" onclick="startMode('617')">6/17 추가</button>
       <button class="nav-btn" id="nav-618" onclick="startMode('618')">6/18 추가</button>
+      <button class="nav-btn" id="nav-619" onclick="startMode('619')">6/19 추가</button>
+      <button class="nav-btn" id="nav-622" onclick="startMode('622')">6/22 추가</button>
     </div>
     <div class="progress" id="progress"></div>
     <div class="concept" id="concept"></div>
@@ -167,12 +171,15 @@ body {
 
     <!-- 주관식 / 6/17 영역 -->
     <div id="text-section" style="display:none;">
-      <div class="text-label">이 설명에 해당하는 개념은?</div>
+      <div class="text-label" id="text-label">이 설명에 해당하는 개념은?</div>
       <div class="text-desc" id="text-desc"></div>
-      <div class="answer-row">
+      <!-- 주관식 입력 -->
+      <div class="answer-row" id="text-answer-row">
         <input class="answer-input" id="text-input" type="text" placeholder="개념 이름을 입력하세요..." autocomplete="off">
         <button class="check-btn" id="text-check-btn" onclick="checkText()">채점</button>
       </div>
+      <!-- 객관식 선택 버튼 -->
+      <div class="choices" id="text-choices" style="display:none;"></div>
       <div class="text-feedback" id="text-feedback"></div>
       <button class="next-btn" id="text-next-btn" onclick="nextQ()" style="display:none;">다음 문제 →</button>
     </div>
@@ -365,13 +372,13 @@ const Q_SA = [
 
 // 6/17 추가문제 (7문제)
 const Q_617 = [
-  { desc: "괄호안에 들어갈 단어를 적으세요.\n\n(      ) Temp: Temp = TCHAR (역참조된 문자열 주소)로 변환된다 / TEXT((%s), TCHAR*)", answers: ["FString"], caseSensitive: true },
-  { desc: "( )* ObjPtr = ActorPtr\nAMyActor를 부모 타입에 담음. 가리키는 값은 그대로 AMyActor. (업캐스팅)", answers: ["uobject"] },
-  { desc: "코드에 명시된 클래스 정보를 가져옴.\n시점: 컴파일\n힌트: Static _____( )", answers: ["staticclass", "staticclass()"] },
-  { desc: "포인터가 실제 가리키는 오브젝트의 클래스 정보를 표시.\n시점: 런타임\n힌트: Get _____( )", answers: ["getclass", "getclass()"] },
-  { desc: "UI 텍스트 표시용. 다국어 현지화(Localization) 지원. 변경 불가.", answers: ["ftext"] },
-  { desc: "조작용 문자열. 변경 가능. 힙 할당이라 상대적으로 무겁다.", answers: ["fstring"] },
-  { desc: "비교·검색용 문자열. 대소문자 무시. 본 이름, 소켓, 태그처럼 자주 비교되는 식별자에 사용.", answers: ["fname"] }
+  { desc: "괄호안에 들어갈 단어를 적으세요.\n\n(      ) Temp: Temp = TCHAR (역참조된 문자열 주소)로 변환된다 / TEXT((%s), TCHAR*)", display: "FString", answers: ["FString"], caseSensitive: true },
+  { desc: "( )* ObjPtr = ActorPtr\nAMyActor를 부모 타입에 담음. 가리키는 값은 그대로 AMyActor. (업캐스팅)", display: "UObject", answers: ["uobject"] },
+  { desc: "코드에 명시된 클래스 정보를 가져옴.\n시점: 컴파일\n힌트: Static _____( )", display: "StaticClass()", answers: ["staticclass", "staticclass()"] },
+  { desc: "포인터가 실제 가리키는 오브젝트의 클래스 정보를 표시.\n시점: 런타임\n힌트: Get _____( )", display: "GetClass()", answers: ["getclass", "getclass()"] },
+  { desc: "UI 텍스트 표시용. 다국어 현지화(Localization) 지원. 변경 불가.", display: "FText", answers: ["ftext"] },
+  { desc: "조작용 문자열. 변경 가능. 힙 할당이라 상대적으로 무겁다.", display: "FString", answers: ["fstring"] },
+  { desc: "비교·검색용 문자열. 대소문자 무시. 본 이름, 소켓, 태그처럼 자주 비교되는 식별자에 사용.", display: "FName", answers: ["fname"] }
 ];
 
 // 6/18 추가문제 (8문제)
@@ -379,11 +386,35 @@ const Q_618 = [
   { desc: "부모 로드 시 같이 로드됨, 즉시 사용 가능하며 코드가 간단하고 바로 접근 가능함. 대신 연쇄 로딩으로 메모리 폭증.", answers: ["하드 참조", "하드참조", "직접 참조", "직접참조", "하드(직접) 참조", "하드", "직접", "hard reference"] },
   { desc: "필요한 순간에 명시적으로 로드해서 사용하며 경로만 가지고 있다. 메모리 절약에는 좋지만 로드 전에는 사용 불가능하다.", answers: ["소프트 참조", "소프트참조", "소프트", "soft reference"] },
   { desc: "C++에서 = 대입 시, 한 줄에서 결과값을 반환(대입)하는 방향은?", answers: ["왼쪽", "left"] },
-  { desc: "현재 게임 월드를 가져오는 함수는?", answers: ["getworld", "getworld()"] },
-  { desc: "블루프린트에서 자주 사용하는 정적(static) 함수들이 모인 클래스를 적으세요.", answers: ["ugameplaystatics"] },
-  { desc: "다음 두 코드는 같은 결과가 나옵니다. 빈칸 ①②에 들어갈 단어를 쓰세요.\n\n// 람다 방식\nSetTimer(TimerTestHandle, ①____(){ this->Destroy(); }, 1.5f, false);\n\n// 멤버 함수 방식\nSetTimer(TimerTestHandle, this, ②____________, 1.5f, false);\n\n(정답 예시: [this] , &AMyActor::OnTimerFinished)", answers: ["[this],&amyactor::ontimerfinished", "[this], &amyactor::ontimerfinished", "[this] , &amyactor::ontimerfinished"] },
-  { desc: "다음 로직 마지막에 들어가는 1.5f 와 false 의 의미는?\n\nGetWorldTimerManager().SetTimer(TimerTestHandle, this, &AMyActor::OnTimerFinished, 1.5f, false);", answers: ["1.5초 뒤 실행, 반복하지 않음", "1.5초 뒤 실행 반복하지 않음", "1.5초뒤 실행, 반복안함", "1.5초 후 실행, 반복 안함"] },
-  { desc: "파티클(캐스케이드) 사용 시 써야 할 전처리문(헤더 인클루드)은?", answers: ['#include "particles/particlesystem.h"', "#include <particles/particlesystem.h>", "particles/particlesystem.h"] }
+  { desc: "현재 게임 월드를 가져오는 함수는?", display: "GetWorld()", answers: ["getworld", "getworld()"] },
+  { desc: "블루프린트에서 자주 사용하는 정적(static) 함수들이 모인 클래스를 적으세요.", display: "UGameplayStatics", answers: ["ugameplaystatics"] },
+  { desc: "다음 두 코드는 같은 결과가 나옵니다. 빈칸 ①②에 들어갈 단어를 쓰세요.\n\n// 람다 방식\nSetTimer(TimerTestHandle, ①____(){ this->Destroy(); }, 1.5f, false);\n\n// 멤버 함수 방식\nSetTimer(TimerTestHandle, this, ②____________, 1.5f, false);\n\n(정답 예시: [this] , &AMyActor::OnTimerFinished)", display: "[this] , &AMyActor::OnTimerFinished", answers: ["[this],&amyactor::ontimerfinished", "[this], &amyactor::ontimerfinished", "[this] , &amyactor::ontimerfinished"] },
+  { desc: "다음 로직 마지막에 들어가는 1.5f 와 false 의 의미는?\n\nGetWorldTimerManager().SetTimer(TimerTestHandle, this, &AMyActor::OnTimerFinished, 1.5f, false);", display: "1.5초 뒤 실행, 반복하지 않음", answers: ["1.5초 뒤 실행, 반복하지 않음", "1.5초 뒤 실행 반복하지 않음", "1.5초뒤 실행, 반복안함", "1.5초 후 실행, 반복 안함"] },
+  { desc: "파티클(캐스케이드) 사용 시 써야 할 전처리문(헤더 인클루드)은?", display: '#include "Particles/ParticleSystem.h"', answers: ['#include "particles/particlesystem.h"', "#include <particles/particlesystem.h>", "particles/particlesystem.h"] }
+];
+
+// 6/19 추가문제 (8문제)
+const Q_619 = [
+  { desc: "(클래스 타입으로 카메라 찾기)\n카메라 타입의 컴포넌트를 단 하나만 찾아 반환하는 함수의 이름은?\n\n힌트: UCameraComponent* Camera = ________<___>();", display: "FindComponentByClass<UCameraComponent>()", answers: ["findcomponentbyclass", "findcomponentbyclass<ucameracomponent>()", "findcomponentbyclass()"] },
+  { desc: "(컴포넌트 이름으로 카메라 찾기)\n빈칸에 들어갈 함수는?\n\nif (CameraComp->_____ == TEXT(\"GameCamera\"))", display: "GetName()", answers: ["getname()", "getname"] },
+  { desc: "빈칸에 들어갈 단어를 적으세요.\n\nUE_LOG(LogTemp, Log, TEXT(\"멤버 변수로 쓰기 : %s\"), *FollowCamera->GetName());\n\n위 코드에서 FollowCamera 앞에 *를 붙인 이유는, %s가 GetName()이 반환하는 [____]을 그냥 받을 수 없어서 [____]을 문자열로 바꾸기 위해서이다.", display: "FString", answers: ["fstring"] },
+  { desc: "컴포넌트에 \"MainCamera\"라는 태그가 달려있는지 확인하는 코드입니다. 빈칸에 들어갈 함수를 적으세요.\n\nif (CameraComp->____________(TEXT(\"MainCamera\")))\n{\n    UE_LOG(LogTemp, Log, TEXT(\"MainCamera Tag로 찾음\"));\n}", display: "ComponentHasTag()", answers: ["componenthastag", "componenthastag()"] },
+  { desc: "물리 시뮬레이션을 켜는 함수와 물리 충돌(Hit 이벤트) 알림을 켜는 함수를 적으세요.\n\nMesh->______________(true)   // 물리 켜기\nMesh->___________________(true) // 충돌 이벤트 알림", display: "SetSimulatePhysics, SetNotifyRigidBodyCollision", answers: ["setsimulatephysics, setnotifyrigidbodycollision", "setsimulatephysics setnotifyrigidbodycollision", "setsimulatephysics,setnotifyrigidbodycollision"] },
+  { desc: "물리 충돌이 일어났을 때 OnActorHitEvent가 자동으로 호출되도록 연결하는 코드입니다. 빈칸을 채우세요.\n\nthis->OnActorHit.________(this, &AHitActor::OnActorHitEvent);", display: "AddDynamic", answers: ["adddynamic", "adddynamic()"] },
+  { desc: "AddDynamic을 사용할 때 연결하는 함수 위에 꼭 붙여야 하는 것은?\n(안 붙이면 델리게이트에 연결되지 않아 런타임 에러가 난다)", display: "UFUNCTION()", answers: ["ufunction()", "ufunction"] },
+  { desc: "다음 코드에서 잘못된 부분을 찾으세요.\n\nthis->OnActorHit.AddDynamic(this, &AHitActor::OnActorHitEvent());\n\n(힌트: 델리게이트에는 '나중에 부를 함수의 주소'를 넘겨야 한다)", display: "함수 뒤의 () — OnActorHitEvent() 의 ()", answers: ["()", "()를 붙임", "괄호", "ontimerfinished()", "onactorhitevent()의 ()"] }
+];
+
+// 6/22 추가문제 (8문제)
+const Q_622 = [
+  { desc: "임의 오브젝트의 멤버 함수에 동적으로 바인딩 시킬 수 있으며, 그런 다음 그 오브젝트에서 함수를 호출할 수 있게 해주는 것은?", display: "델리게이트", answers: ["델리게이트", "delegate"] },
+  { desc: "Execute() 와 ExecuteIfBound() 의 차이로 알맞은 것을 고르세요.", choices: ["무조건 실행 / 무조건 무시", "무조건 실행 / 바인딩 안 되어있으면 무시", "무조건 무시 / 바인딩 안 되어있으면 무시", "메챠 카와이 / 메챠 카멜레온"], correctIndex: 1 },
+  { desc: "Hello() 함수가 실행될 때 \"Hello Delegate\" 출력 로그 메시지를 띄우는 문장을 적으세요.\n\n힌트: UE_LOG\n\nvoid AMyDelegate::Hello()\n{\n    ________________________\n}", display: 'UE_LOG(LogTemp, Log, TEXT("Hello Delegate"));', answers: ['ue_log(logtemp, log, text("hello delegate"));', 'ue_log(logtemp, log, text("hello delegate"))', 'ue_log(logtemp, warning, text("hello delegate"));', 'ue_log(logtemp, warning, text("hello delegate"))'] },
+  { desc: "싱글 캐스트 델리게이트는 함수 하나만 담고 ExecuteIfBound()를 사용한다. 그렇다면 멀티 캐스트 델리게이트에 쓰이는 함수는?", display: "Broadcast()", answers: ["broadcast", "broadcast()"] },
+  { desc: "OnComponentHit, OnActorHit 처럼 멤버 변수 앞에 On이 붙는 이유로 맞는 설명을 고르세요.", choices: ["On을 안 붙이면 실행이 안 돼서", "암묵적 룰(명명 규칙)이라서", "협업 단계가 아니라서"], correctIndex: 1 },
+  { desc: "콜리전을 활성화(켜고 끄기)하는 함수는?", display: "SetCollisionEnabled()", answers: ["setcollisionenabled", "setcollisionenabled()"] },
+  { desc: "다음 로직은 BoxComponent에 오버랩 시작 시 OnComponentBeginOverlap을 자동으로 호출하는 로직입니다. 빈칸에 들어갈 단어를 적으세요.\n\nBoxComponent->OnComponentBeginOverlap__________(this,\n    &AMyBoxActor::OnComponentBeginOverlap);", display: ".AddDynamic", answers: [".adddynamic", ".adddynamic()", "adddynamic", "adddynamic()"] },
+  { desc: "다음 로직의 괄호 안에 들어갈 단어는?\n\nAPlayerController* PC = UGameplayStatics::GetPlayerController(____)", choices: ["this, 1", "1, this", "this, 0", "0, this"], correctIndex: 2 }
 ];
 
 let currentMode = null, idx = 0, score = 0, selected = null;
@@ -392,6 +423,8 @@ function getQuestions() {
   if (currentMode === 'sa')  return Q_SA;
   if (currentMode === '617') return Q_617;
   if (currentMode === '618') return Q_618;
+  if (currentMode === '619') return Q_619;
+  if (currentMode === '622') return Q_622;
   return Q;
 }
 
@@ -412,7 +445,7 @@ function render() {
 
   document.getElementById('progress').textContent = `${idx + 1} / ${qs.length}`;
 
-  ['mc', 'sa', '617', '618'].forEach(m => {
+  ['mc', 'sa', '617', '618', '619', '622'].forEach(m => {
     document.getElementById('nav-' + m).classList.toggle('active', currentMode === m);
   });
 
@@ -447,18 +480,59 @@ function renderMC(q, isLast) {
 
 function renderText(q, isLast) {
   document.getElementById('text-desc').textContent = q.desc;
-  const input = document.getElementById('text-input');
-  input.value = '';
-  input.className = 'answer-input';
-  input.disabled = false;
-  document.getElementById('text-check-btn').disabled = false;
   const feedback = document.getElementById('text-feedback');
   feedback.style.display = 'none';
   feedback.className = 'text-feedback';
   const nextBtn = document.getElementById('text-next-btn');
   nextBtn.style.display = 'none';
   nextBtn.textContent = isLast ? '완료' : '다음 문제 →';
-  input.focus();
+
+  const answerRow = document.getElementById('text-answer-row');
+  const choicesEl = document.getElementById('text-choices');
+
+  if (q.choices) {
+    // 객관식(선택형) 문제
+    document.getElementById('text-label').textContent = '알맞은 것을 고르세요';
+    answerRow.style.display = 'none';
+    document.getElementById('text-check-btn').disabled = true;
+    choicesEl.style.display = 'flex';
+    choicesEl.innerHTML = '';
+    q.choices.forEach((text, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      btn.textContent = text;
+      btn.onclick = () => pickText(i);
+      choicesEl.appendChild(btn);
+    });
+  } else {
+    // 주관식(입력형) 문제
+    document.getElementById('text-label').textContent = '정답을 입력하세요';
+    answerRow.style.display = 'flex';
+    choicesEl.style.display = 'none';
+    choicesEl.innerHTML = '';
+    const input = document.getElementById('text-input');
+    input.value = '';
+    input.className = 'answer-input';
+    input.disabled = false;
+    document.getElementById('text-check-btn').disabled = false;
+    input.focus();
+  }
+}
+
+function pickText(i) {
+  const q = getQuestions()[idx];
+  const btns = document.querySelectorAll('#text-choices .choice');
+  if (i === q.correctIndex) {
+    btns[i].classList.add('correct');
+    score++;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.correctIndex].classList.add('correct');
+  }
+  // 한 번 고르면 잠금
+  btns.forEach(b => b.onclick = null);
+  selected = i;
+  document.getElementById('text-next-btn').style.display = 'block';
 }
 
 function pick(i) {
@@ -498,7 +572,7 @@ function checkText() {
     feedback.textContent = '정답입니다!';
   } else {
     feedback.className = 'text-feedback wrong';
-    feedback.textContent = `오답! 정답: ${q.answers[0]}`;
+    feedback.textContent = `오답! 정답: ${q.display || q.answers[0]}`;
   }
   document.getElementById('text-next-btn').style.display = 'block';
 }
@@ -523,7 +597,7 @@ function goHome() {
 }
 
 document.addEventListener('keydown', e => {
-  if ((currentMode === 'sa' || currentMode === '617' || currentMode === '618') && e.key === 'Enter') {
+  if ((currentMode === 'sa' || currentMode === '617' || currentMode === '618' || currentMode === '619' || currentMode === '622') && e.key === 'Enter') {
     const btn = document.getElementById('text-check-btn');
     if (!btn.disabled) checkText();
   }
